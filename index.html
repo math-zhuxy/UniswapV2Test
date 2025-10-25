@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能合约交互界面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2, h3 { color: #333; }
+        .input-group, .action-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], select { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #results, #callResult { margin-top: 10px; padding: 10px; background: #eee; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>1. 连接到以太坊节点</h2>
+        <div class="input-group">
+            <label for="nodeUrl">节点地址 (例如: http://127.0.0.1:8545)</label>
+            <input type="text" id="nodeUrl" value="http://127.0.0.1:8545">
+        </div>
+        <div class="input-group">
+            <label for="privateKey">你的私钥</label>
+            <input type="text" id="privateKey" placeholder="0x...">
+        </div>
+        <p>公钥地址: <span id="publicKey"></span></p>
+
+        <hr>
+
+        <h2>2. 账户操作</h2>
+        <div class="action-group">
+            <h3>查询余额</h3>
+            <label for="balanceAddress">地址:</label>
+            <input type="text" id="balanceAddress" placeholder="0x...">
+            <button id="checkBalanceBtn">查询余额</button>
+            <p>余额: <span id="balanceResult"></span></p>
+        </div>
+        <div class="action-group">
+            <h3>发送ETH</h3>
+            <label for="toAddress">接收方地址:</label>
+            <input type="text" id="toAddress" placeholder="0x...">
+            <label for="amount">金额 (ETH):</label>
+            <input type="text" id="amount" placeholder="例如: 0.1">
+            <button id="sendEthBtn">发送ETH</button>
+            <p id="sendStatus"></p>
+        </div>
+
+        <hr>
+
+        <h2>3. 扫描并识别智能合约</h2>
+        <div class="action-group">
+            <button id="scanContractsBtn">开始扫描区块</button>
+            <p id="scanStatus"></p>
+        </div>
+        <h3>已发现的合约:</h3>
+        <div id="results"></div>
+
+        <hr>
+
+        <h2>4. 部署新的智能合约</h2>
+        <div class="action-group">
+            <label for="contractType">选择要部署的合约类型:</label>
+            <select id="contractType">
+                <option value="amm">AMM</option>
+                <option value="e20c">ERC20 Token</option>
+                <option value="wbkc">WBKC</option>
+            </select>
+            <div id="deploy-params"></div>
+            <button id="deployContractBtn">部署合约</button>
+            <p id="deployStatus"></p>
+        </div>
+
+        <hr>
+
+        <h2>5. 调用智能合约函数</h2>
+        <div class="action-group">
+            <label for="contractAddress">合约地址:</label>
+            <input type="text" id="contractAddress" placeholder="0x...">
+            <label for="contractAbiSelect">选择合约ABI:</label>
+            <select id="contractAbiSelect">
+                <option value="amm">AMM</option>
+                <option value="e20c">ERC20 Token</option>
+                <option value="wbkc">WBKC</option>
+            </select>
+            <br><br>
+            <label for="functionSelect">选择函数:</label>
+            <select id="functionSelect"></select>
+            <div id="function-params"></div>
+            <button id="callFunctionBtn">调用函数</button>
+            <h3>调用结果:</h3>
+            <div id="callResult"></div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
