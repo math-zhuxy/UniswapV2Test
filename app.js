@@ -52,8 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadContractArtifacts() {
         try {
-            const contracts = ['amm', 'e20c', 'wbkc'];
-            for (const contract of contracts) {
+            for (const contract of ['amm', 'e20c', 'wbkc']) {
                 const abiResponse = await fetch(`data/${contract}.abi`);
                 if (!abiResponse.ok) throw new Error(`无法加载 ${contract}.abi`);
                 abis[contract] = await abiResponse.json();
@@ -62,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!bytecodeResponse.ok) throw new Error(`无法加载 ${contract}.bytecode`);
                 bytecodes[contract] = await bytecodeResponse.text();
             }
-            console.log('ABI 和 Bytecode 加载成功:', { abis, bytecodes });
+            console.log('ABI 和 Bytecode 加载成功:');
             updateFunctionList();
             updateDeployUI();
         } catch (error) {
@@ -191,8 +190,25 @@ document.addEventListener('DOMContentLoaded', () => {
                             const contract = new ethers.Contract(contractAddress, minimalAbi, provider);
                             try {
                                 const type = await contract.contract_type();
+                                // type = Number(type);
+                                
+                                console.log(typeof type)
+                                let contract_type = "";
+                                switch (type) {
+                                    case 0n:
+                                        contract_type = "ERC20";
+                                        break;
+                                    case 1n:
+                                        contract_type = "WBKC";
+                                        break;
+                                    case 2n:
+                                        contract_type = "AMM";
+                                        break;
+                                    default:
+                                        break;
+                                }
                                 const resultLine = document.createElement('div');
-                                resultLine.textContent = `地址: ${contractAddress}, 类型: ${type.toString()}`;
+                                resultLine.textContent = `地址: ${contractAddress}, 类型: ${contract_type}(${type})，区块：${i}/${latestBlockNumber}`;
                                 resultsDiv.appendChild(resultLine);
                             } catch (e) {
                                 // 如果合约没有 contract_type 变量，会抛出异常
@@ -255,16 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const args = params.map(param => {
                 const input = document.getElementById(`deploy-${param.name}`);
                 let value = input.value;
-                // 对于 uint256 类型，如果输入的是非十六进制字符串，ethers 可能会尝试将其作为 ENS 名称解析。
-                // 我们需要确保将它们转换为 BigInt。
-                if (param.type.startsWith('uint') || param.type.startsWith('int')) {
-                    try {
-                        return ethers.toBigInt(value);
-                    } catch (e) {
-                        console.warn(`无法将 '${value}' 转换为 BigInt，将尝试使用原始值。`, e);
-                        return value; // 如果转换失败，回退到原始值
-                    }
-                }
                 return value;
             });
 
@@ -316,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     functionParamsDiv.appendChild(inputElem);
                 });
             }
+
             // Special case for wBKC mintToken to add value input
             if (selectedAbiName === 'wbkc' && functionName === 'mintToken') {
                 const valueInput = document.createElement('input');
